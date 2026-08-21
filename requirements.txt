@@ -1,0 +1,2 @@
+# Unica dependencia: el SDK oficial de Anthropic (requiere Python 3.10+).
+anthropic>=1,<2

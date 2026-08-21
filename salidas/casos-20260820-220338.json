@@ -1,0 +1,730 @@
+{
+  "pedido": "Analiza la documentacion disponible del circuito de alta de suscripciones y genera casos de prueba funcionales.",
+  "verificacion": {
+    "verificada": 25,
+    "cita_no_encontrada": 0,
+    "documento_inexistente": 0,
+    "sin_cita": 0,
+    "total": 25,
+    "sospechosos": 0
+  },
+  "resultado": {
+    "resumen": "Se leyeron los tres documentos disponibles (circuito de alta, datos y validaciones, planes y cobro). La documentacion describe con razonable detalle el flujo de tres pasos, los estados de la persona, los planes y los medios de pago, pero es muy pobre en comportamiento ante errores: no define mensajes concretos de validacion, ni que ocurre tras un cobro fallido, ni reintentos, bajas, vigencias de links/codigos ni precios. Por eso hay una cantidad importante de informacion faltante frente a un numero acotado de casos respaldados por cita literal.",
+    "documentos_consultados": [
+      "01-circuito-alta.md",
+      "02-datos-y-validaciones.md",
+      "03-planes-y-cobro.md"
+    ],
+    "casos_positivos": [
+      {
+        "id": "CP-01",
+        "titulo": "Alta exitosa por choque directo: confirmacion de Member y retorno a Home",
+        "precondiciones": [
+          "Persona anonima o registrada no suscriptora",
+          "Ingreso desde cronista.com por el boton 'Suscribite' hacia cronista.com/suscripciones"
+        ],
+        "pasos": [
+          "Entrar a cronista.com y hacer clic en 'Suscribite'",
+          "En /suscripciones elegir el plan Mensual",
+          "Completar el paso 1 (login o registro)",
+          "Completar el paso 2 con telefono, DNI, nombre y apellidos",
+          "En el paso 3 elegir tarjeta de credito y confirmar el alta",
+          "Verificar el cartel final y hacer clic en 'Volver al sitio'"
+        ],
+        "resultado_esperado": "Se muestra un cartel indicando que ya es Member y un boton 'Volver al sitio'; al presionarlo, como el ingreso fue directo, la persona vuelve a la Home.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "Si sale todo ok, le sale un cartel de que ya es Member y va a ver un botón de"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-02",
+        "titulo": "Alta exitosa por choque premium: retorno a la nota premium",
+        "precondiciones": [
+          "Persona anonima o registrada no suscriptora",
+          "Choque con una nota cerrada (paywall)"
+        ],
+        "pasos": [
+          "Abrir una nota cerrada y verificar que aparece el paywall con la nota blureada",
+          "Iniciar el circuito de suscripcion desde el paywall",
+          "Completar paso 1, paso 2 y paso 3 con un pago exitoso",
+          "Hacer clic en el boton 'Volver al sitio'"
+        ],
+        "resultado_esperado": "El sistema redirige al return to, que es la url desde la cual choco: al no ser ingreso directo, vuelve a la nota premium.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "Si no lo era, vuelve a la nota"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-03",
+        "titulo": "El paso 2 pide los datos incluso a una persona ya registrada de antes",
+        "precondiciones": [
+          "Persona registrada previamente (no suscriptora) con nombre, apellido y correo ya cargados"
+        ],
+        "pasos": [
+          "Entrar a /suscripciones y elegir un plan",
+          "Loguearse con la cuenta ya existente en el paso 1",
+          "Observar el paso 2"
+        ],
+        "resultado_esperado": "El sistema solicita nuevamente telefono, DNI, nombre y apellidos, aunque la persona ya estuviera registrada.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "Estos datos se piden siempre, incluso a una persona que ya estaba registrada"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-04",
+        "titulo": "Registro con login social queda registrado sin codigo de confirmacion",
+        "precondiciones": [
+          "Persona anonima con cuenta de Google o Facebook valida"
+        ],
+        "pasos": [
+          "Entrar a /suscripciones y elegir un plan",
+          "En el paso 1 elegir registrarse con login social (Google o Facebook)",
+          "Autorizar el acceso en el proveedor social",
+          "Revisar la casilla de correo"
+        ],
+        "resultado_esperado": "La persona queda registrada de inmediato, sin que el sistema le pida ingresar el codigo de confirmacion por mail, y puede continuar al paso 2.",
+        "evidencia": {
+          "documento": "02-datos-y-validaciones.md",
+          "cita": "con login social queda registrado de una, sin pasar por el código de confirmación"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-05",
+        "titulo": "Registro nativo con confirmacion de mail mediante codigo",
+        "precondiciones": [
+          "Persona anonima",
+          "Correo no registrado previamente"
+        ],
+        "pasos": [
+          "En el paso 1 elegir registro nativo",
+          "Ingresar nombre, apellido, correo y una contrasena de al menos 8 caracteres con una mayuscula",
+          "Enviar el formulario",
+          "Abrir el correo recibido y copiar el codigo",
+          "Pegar el codigo en la pantalla de registro para validar"
+        ],
+        "resultado_esperado": "El registro solo se termina despues de confirmar el mail con el codigo recibido; una vez validado, el registro queda completo.",
+        "evidencia": {
+          "documento": "02-datos-y-validaciones.md",
+          "cita": "Hay que confirmar el mail antes de poder terminar el registro."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-06",
+        "titulo": "Pago con tarjeta: campos solicitados en el paso 3",
+        "precondiciones": [
+          "Persona registrada no suscriptora que llego al paso 3",
+          "Tarjeta de credito o de debito valida"
+        ],
+        "pasos": [
+          "En el paso 3 elegir pagar con tarjeta de credito o de debito",
+          "Observar el formulario de datos de la tarjeta",
+          "Completar los campos y confirmar"
+        ],
+        "resultado_esperado": "El formulario pide unicamente numero, vencimiento, codigo de seguridad y titular, sin campos adicionales.",
+        "evidencia": {
+          "documento": "03-planes-y-cobro.md",
+          "cita": "número, vencimiento, código de seguridad y titular. Nada más."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-07",
+        "titulo": "Pago con dinero en cuenta de Mercado Pago requiere login en Mercado Pago",
+        "precondiciones": [
+          "Persona registrada no suscriptora que llego al paso 3",
+          "Cuenta de Mercado Pago con dinero en cuenta"
+        ],
+        "pasos": [
+          "En el paso 3 seleccionar pagar por Mercado Pago",
+          "Elegir pagar con dinero en cuenta",
+          "Observar lo que solicita el sistema"
+        ],
+        "resultado_esperado": "El sistema le pide loguearse con la cuenta de Mercado Pago para poder pagar con dinero en cuenta.",
+        "evidencia": {
+          "documento": "03-planes-y-cobro.md",
+          "cita": "Para pagar con dinero en cuenta, cuando la persona selecciona pagar por Mercado"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-08",
+        "titulo": "Volver del paso 3 al paso 2 dentro del circuito",
+        "precondiciones": [
+          "Persona en el paso 3 del circuito de alta"
+        ],
+        "pasos": [
+          "Estando en el paso 3, usar la accion de volver atras",
+          "Verificar en que pantalla queda"
+        ],
+        "resultado_esperado": "El sistema permite volver del paso 3 al paso 2.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "Del paso 3 al paso 2 se puede volver. Del paso 2 al paso 1 no. Si quiere cambiar"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-09",
+        "titulo": "La suscripcion se confirma cuando se cobra",
+        "precondiciones": [
+          "Persona en el paso 3 con medio de pago valido"
+        ],
+        "pasos": [
+          "Confirmar el alta en el paso 3",
+          "Verificar que se ejecuta el cobro",
+          "Verificar el estado de la suscripcion"
+        ],
+        "resultado_esperado": "Al confirmar el alta se ejecuta el cobro y la suscripcion queda confirmada recien cuando el cobro se efectiviza.",
+        "evidencia": {
+          "documento": "03-planes-y-cobro.md",
+          "cita": "Al confirmar el alta se cobra, y la suscripción se confirma cuando efectivamente"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-10",
+        "titulo": "Envio del mail de bienvenida tras el alta",
+        "precondiciones": [
+          "Alta completada con cobro exitoso"
+        ],
+        "pasos": [
+          "Completar el circuito de alta con pago exitoso",
+          "Revisar la casilla de correo de la persona suscripta"
+        ],
+        "resultado_esperado": "La persona recibe un mail de bienvenida.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "La persona recibe un mail de bienvenida."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-11",
+        "titulo": "Emision del comprobante como factura contado",
+        "precondiciones": [
+          "Alta completada con cobro exitoso",
+          "Correo indicado por la persona durante el alta"
+        ],
+        "pasos": [
+          "Completar el alta con cobro exitoso",
+          "Esperar el plazo indicado",
+          "Revisar el correo indicado por la persona"
+        ],
+        "resultado_esperado": "Llega una factura contado al correo que la persona indico, aproximadamente a los 20 dias.",
+        "evidencia": {
+          "documento": "03-planes-y-cobro.md",
+          "cita": "Lo que llega es una factura contado, al correo que la persona indicó. Llega en 20"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-12",
+        "titulo": "Renovacion del plan Mensual el mismo dia del mes",
+        "precondiciones": [
+          "Suscriptor activo con plan Mensual dado de alta en una fecha conocida"
+        ],
+        "pasos": [
+          "Registrar la fecha de alta del plan Mensual",
+          "Avanzar al mes siguiente",
+          "Verificar la fecha en que se ejecuta el cobro de renovacion"
+        ],
+        "resultado_esperado": "El cobro de renovacion se realiza el mismo dia del mes en que se dio el alta.",
+        "evidencia": {
+          "documento": "03-planes-y-cobro.md",
+          "cita": "A los planes mensuales se les cobra el mismo día del mes. A los planes anuales se"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CP-13",
+        "titulo": "Acceso a un plan con descuento unicamente por url directa",
+        "precondiciones": [
+          "Link directo a un plan de Jubilados, Estudiantes o Corporativos, enviado por call center o marketing"
+        ],
+        "pasos": [
+          "Abrir la url directa del plan recibida por correo",
+          "Verificar que se muestra ese plan",
+          "Entrar a /suscripciones y revisar el listado de planes"
+        ],
+        "resultado_esperado": "El plan se accede desde la url directa; ese plan no aparece entre los planes visibles en /suscripciones.",
+        "evidencia": {
+          "documento": "03-planes-y-cobro.md",
+          "cita": "planes solo se accede desde la url directa del plan, y no son visibles desde"
+        },
+        "estado_evidencia": "verificada"
+      }
+    ],
+    "casos_negativos": [
+      {
+        "id": "CN-01",
+        "titulo": "Persona que ya es suscriptora no puede continuar el circuito",
+        "precondiciones": [
+          "Cuenta existente en estado Suscriptor (member)"
+        ],
+        "pasos": [
+          "Entrar a /suscripciones y elegir un plan",
+          "En el paso 1 loguearse con la cuenta que ya es suscriptora",
+          "Observar la navegacion"
+        ],
+        "resultado_esperado": "El sistema redirige a la Home y no le permite continuar el circuito de suscripcion.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "Si se loguea y ya es suscriptor, el sistema lo redirige a la Home y no le"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CN-02",
+        "titulo": "Elegir un plan sin estar logueada ni registrada",
+        "precondiciones": [
+          "Persona anonima"
+        ],
+        "pasos": [
+          "Entrar a /suscripciones sin iniciar sesion",
+          "Elegir el plan Mensual o Anual",
+          "Observar la respuesta del sistema"
+        ],
+        "resultado_esperado": "El sistema no permite avanzar sin identificacion: le pide loguearse o registrarse.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "formulario de suscripción y elige un plan sin estar logueada o registrada, el"
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CN-03",
+        "titulo": "Registro nativo con contrasena que no cumple el minimo de 8 caracteres o sin mayuscula",
+        "precondiciones": [
+          "Persona anonima en el paso 1, opcion registro nativo"
+        ],
+        "pasos": [
+          "Ingresar nombre, apellido y correo validos",
+          "Ingresar la contrasena 'abc12' (menos de 8 caracteres, sin mayuscula)",
+          "Intentar enviar el formulario",
+          "Repetir con la contrasena 'abcdefgh' (8 caracteres, sin mayuscula)"
+        ],
+        "resultado_esperado": "El registro no se completa porque la contrasena no cumple el requisito de minimo 8 caracteres y una mayuscula. El texto exacto del mensaje no esta documentado (ver IF-01).",
+        "evidencia": {
+          "documento": "02-datos-y-validaciones.md",
+          "cita": "contraseña tiene que tener un mínimo de 8 caracteres y una mayúscula."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CN-04",
+        "titulo": "Registro con un email ya utilizado",
+        "precondiciones": [
+          "Existe una cuenta registrada con el correo usuario@dominio.com"
+        ],
+        "pasos": [
+          "Iniciar el registro nativo",
+          "Ingresar el correo usuario@dominio.com junto con el resto de los datos",
+          "Intentar completar el registro"
+        ],
+        "resultado_esperado": "El registro no se permite porque el email no puede estar repetido al momento del registro. El texto exacto del mensaje no esta documentado (ver IF-01).",
+        "evidencia": {
+          "documento": "02-datos-y-validaciones.md",
+          "cita": "El email no puede estar repetido al momento del registro."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CN-05",
+        "titulo": "Paso 2 con alguno de los cuatro datos obligatorios vacio",
+        "precondiciones": [
+          "Persona logueada no suscriptora en el paso 2"
+        ],
+        "pasos": [
+          "Completar telefono, nombre y apellidos y dejar el DNI vacio",
+          "Intentar avanzar al paso 3",
+          "Repetir dejando vacio cada uno de los otros tres campos"
+        ],
+        "resultado_esperado": "No se puede avanzar: los cuatro campos (telefono, DNI, nombre y apellidos) son obligatorios. El mensaje exacto no esta documentado (ver IF-01).",
+        "evidencia": {
+          "documento": "02-datos-y-validaciones.md",
+          "cita": "En el paso 2 el sistema pide teléfono, DNI, nombre y apellidos."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CN-06",
+        "titulo": "Cobro rechazado en el paso 3",
+        "precondiciones": [
+          "Persona en el paso 3 con un medio de pago que sera rechazado (por ejemplo, saldo insuficiente)"
+        ],
+        "pasos": [
+          "Seleccionar el medio de pago",
+          "Confirmar el alta",
+          "Observar la respuesta del sistema"
+        ],
+        "resultado_esperado": "El sistema muestra un error. Los mensajes son genericos, del tipo 'contacta a tu entidad bancaria' o 'saldo insuficiente'. El estado en que queda la suscripcion y los reintentos no estan documentados (ver IF-02).",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "Si el cobro sale mal, le da un error."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CN-07",
+        "titulo": "No se puede retroceder del paso 2 al paso 1",
+        "precondiciones": [
+          "Persona en el paso 2 del circuito de alta"
+        ],
+        "pasos": [
+          "Estando en el paso 2, intentar volver al paso 1 con la accion de retroceder del circuito",
+          "Verificar la pantalla resultante"
+        ],
+        "resultado_esperado": "El sistema no permite volver del paso 2 al paso 1.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "Del paso 3 al paso 2 se puede volver. Del paso 2 al paso 1 no. Si quiere cambiar"
+        },
+        "estado_evidencia": "verificada"
+      }
+    ],
+    "casos_borde": [
+      {
+        "id": "CB-01",
+        "titulo": "Contrasena en el limite exacto: 8 caracteres con una mayuscula",
+        "precondiciones": [
+          "Persona anonima en registro nativo",
+          "Correo no registrado previamente"
+        ],
+        "pasos": [
+          "Completar nombre, apellido y correo",
+          "Ingresar la contrasena 'Abcdefgh' (exactamente 8 caracteres, una mayuscula)",
+          "Enviar el formulario y validar el codigo recibido por mail"
+        ],
+        "resultado_esperado": "La contrasena es aceptada, ya que cumple el minimo de 8 caracteres y una mayuscula, y el registro puede completarse tras confirmar el mail.",
+        "evidencia": {
+          "documento": "02-datos-y-validaciones.md",
+          "cita": "contraseña tiene que tener un mínimo de 8 caracteres y una mayúscula."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CB-02",
+        "titulo": "Campos aceptan datos con formato arbitrario",
+        "precondiciones": [
+          "Persona logueada no suscriptora en el paso 2"
+        ],
+        "pasos": [
+          "Cargar en DNI el valor 'ABC-!!' ",
+          "Cargar en telefono el valor 'telefono'",
+          "Intentar avanzar al paso 3"
+        ],
+        "resultado_esperado": "El sistema no rechaza los valores por formato, ya que no hay validaciones de formato en los campos; solo se exige que los cuatro campos esten completos.",
+        "evidencia": {
+          "documento": "02-datos-y-validaciones.md",
+          "cita": "No hay validaciones de formato en los campos."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CB-03",
+        "titulo": "Cambio de plan una vez iniciado el circuito",
+        "precondiciones": [
+          "Persona que ya eligio un plan y avanzo en el circuito"
+        ],
+        "pasos": [
+          "Estando dentro del circuito, intentar cambiar de plan sin salir",
+          "Volver a /suscripciones",
+          "Elegir el otro plan"
+        ],
+        "resultado_esperado": "Para cambiar de plan hay que volver directamente a /suscripciones; el cambio no se hace dentro del circuito.",
+        "evidencia": {
+          "documento": "01-circuito-alta.md",
+          "cita": "de plan, tiene que volver directamente a /suscripciones."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CB-04",
+        "titulo": "Los tres planes por link no se listan en /suscripciones",
+        "precondiciones": [
+          "Planes Jubilados, Estudiantes y Corporativos configurados"
+        ],
+        "pasos": [
+          "Entrar a /suscripciones como persona anonima y listar los planes visibles",
+          "Repetir logueada como persona registrada no suscriptora"
+        ],
+        "resultado_esperado": "Solo se ven dos planes (Mensual y Anual); los planes Jubilados, Estudiantes y Corporativos no aparecen en /suscripciones.",
+        "evidencia": {
+          "documento": "03-planes-y-cobro.md",
+          "cita": "Además hay tres planes distintos: Jubilados, Estudiantes y Corporativos."
+        },
+        "estado_evidencia": "verificada"
+      },
+      {
+        "id": "CB-05",
+        "titulo": "Pago con Mercado Pago sin tener cuenta previa",
+        "precondiciones": [
+          "Persona en el paso 3 sin cuenta de Mercado Pago"
+        ],
+        "pasos": [
+          "En el paso 3 seleccionar pagar con Mercado Pago",
+          "Verificar que se ofrece la posibilidad de crear/cargar una cuenta",
+          "Completar el pago a traves de Mercado Pago"
+        ],
+        "resultado_esperado": "Aunque no tenga cuenta de Mercado Pago, puede cargar una y pagar a traves de Mercado Pago.",
+        "evidencia": {
+          "documento": "03-planes-y-cobro.md",
+          "cita": "tiene cuenta de Mercado Pago, igual puede cargar una y pagar, pero sería a"
+        },
+        "estado_evidencia": "verificada"
+      }
+    ],
+    "informacion_faltante": [
+      {
+        "id": "IF-01",
+        "tema": "Mensajes y comportamiento exacto ante validaciones fallidas de registro y del paso 2 (contrasena invalida, email repetido, campos obligatorios vacios).",
+        "por_que_bloquea": "La documentacion solo dice que los mensajes de error son genericos y ejemplifica con errores de cobro. No se puede verificar el texto ni el lugar donde se muestra el error en CN-03, CN-04 y CN-05, solo que no se avanza.",
+        "donde_deberia_estar": "02-datos-y-validaciones.md, seccion 'Mensajes de error'"
+      },
+      {
+        "id": "IF-02",
+        "tema": "Que ocurre despues de un cobro fallido: estado de la persona y de la suscripcion, si permite reintentar, cuantas veces y con que medio.",
+        "por_que_bloquea": "No se puede escribir el caso de reintento de pago ni verificar si la persona queda como Registrado o en algun estado intermedio tras el rechazo.",
+        "donde_deberia_estar": "01-circuito-alta.md o 03-planes-y-cobro.md"
+      },
+      {
+        "id": "IF-03",
+        "tema": "Renovacion cuando el dia de alta no existe en el mes o ano siguiente (31, 29 de febrero).",
+        "por_que_bloquea": "Impide escribir el caso borde de renovacion en fechas limite: no se sabe si cobra el ultimo dia del mes, el dia anterior o el siguiente.",
+        "donde_deberia_estar": "03-planes-y-cobro.md, seccion 'Renovación'"
+      },
+      {
+        "id": "IF-04",
+        "tema": "Precios de los planes Mensual y Anual y monto o porcentaje de descuento de Jubilados, Estudiantes y Corporativos.",
+        "por_que_bloquea": "No se puede validar el importe cobrado ni comparar el devengamiento menor del plan Anual contra un valor concreto.",
+        "donde_deberia_estar": "03-planes-y-cobro.md, seccion 'Planes visibles en /suscripciones'"
+      },
+      {
+        "id": "IF-05",
+        "tema": "Reglas del link a planes con descuento: vigencia, si es de un solo uso, si esta atado a un correo o persona y que pasa si lo usa alguien no elegible o lo reenvia a un tercero.",
+        "por_que_bloquea": "No se puede probar el rechazo del uso indebido del link ni el vencimiento del mismo.",
+        "donde_deberia_estar": "01-circuito-alta.md, seccion 'Por dónde entra la gente'"
+      },
+      {
+        "id": "IF-06",
+        "tema": "Vigencia del codigo de confirmacion de mail, posibilidad de reenviarlo y comportamiento ante codigo incorrecto o vencido.",
+        "por_que_bloquea": "No se puede escribir el caso negativo de codigo invalido ni el caso borde de codigo expirado.",
+        "donde_deberia_estar": "02-datos-y-validaciones.md, seccion 'Registro nativo'"
+      },
+      {
+        "id": "IF-07",
+        "tema": "Comportamiento del login social cuando el correo de Google/Facebook ya existe como cuenta nativa (o viceversa).",
+        "por_que_bloquea": "No se sabe si vincula cuentas, rechaza por email repetido o crea un duplicado, por lo que no se puede definir el resultado esperado.",
+        "donde_deberia_estar": "02-datos-y-validaciones.md, secciones 'Registro con login social' y 'Validaciones'"
+      },
+      {
+        "id": "IF-08",
+        "tema": "Return to cuando la persona ingresa desde email marketing o desde una url directa de plan con descuento.",
+        "por_que_bloquea": "La documentacion solo define el retorno para choque directo (Home) y choque premium (nota). No se puede verificar a donde vuelve el boton 'Volver al sitio' en esos ingresos.",
+        "donde_deberia_estar": "01-circuito-alta.md, paso 5 del circuito"
+      },
+      {
+        "id": "IF-09",
+        "tema": "Abandono y retoma del circuito: persistencia de los datos ya cargados, expiracion de sesion y que pasa si la persona cierra el navegador entre el paso 2 y el paso 3.",
+        "por_que_bloquea": "No se puede definir el resultado esperado al reingresar al circuito a medio completar.",
+        "donde_deberia_estar": "01-circuito-alta.md, seccion 'El circuito paso a paso'"
+      },
+      {
+        "id": "IF-10",
+        "tema": "Verificacion concreta de los beneficios tras el alta: acceso a notas cerradas, alta en el foro de debates y suscripcion a newsletters (momento en que se habilitan y como se comprueban).",
+        "por_que_bloquea": "No se puede escribir un caso de verificacion posterior al alta con criterio objetivo (por ejemplo, si el acceso es inmediato al cobro).",
+        "donde_deberia_estar": "01-circuito-alta.md, seccion 'Para qué sirve'"
+      },
+      {
+        "id": "IF-11",
+        "tema": "Pagos con Mercado Pago que quedan pendientes o en revision y notificacion asincronica del resultado.",
+        "por_que_bloquea": "No se puede probar el estado intermedio de la suscripcion cuando el cobro no es inmediato ni rechazado.",
+        "donde_deberia_estar": "03-planes-y-cobro.md, seccion 'Cuándo se cobra'"
+      },
+      {
+        "id": "IF-12",
+        "tema": "Baja o cancelacion de la suscripcion y consecuencias sobre el acceso y la renovacion.",
+        "por_que_bloquea": "No existe ninguna mencion al respecto, por lo que no se puede probar el ciclo completo ni un nuevo alta de alguien que se dio de baja.",
+        "donde_deberia_estar": "no hay documento para este tema"
+      }
+    ],
+    "preguntas_analista": [
+      {
+        "id": "PR-01",
+        "pregunta": "Cual es el texto exacto y el lugar de despliegue del mensaje cuando la contrasena no cumple el minimo, cuando el email ya existe y cuando falta un campo obligatorio del paso 2?",
+        "relacionada_con": "IF-01"
+      },
+      {
+        "id": "PR-02",
+        "pregunta": "Tras un cobro rechazado, en que estado queda la persona y cuantos reintentos de pago permite el sistema dentro del mismo circuito?",
+        "relacionada_con": "IF-02"
+      },
+      {
+        "id": "PR-03",
+        "pregunta": "Si el alta de un plan mensual se hace un dia 31 (o un 29 de febrero en el anual), en que fecha exacta se ejecuta la renovacion siguiente?",
+        "relacionada_con": "IF-03"
+      },
+      {
+        "id": "PR-04",
+        "pregunta": "Cuales son los importes vigentes del plan Mensual y del Anual, y cual es el descuento aplicado a los planes Jubilados, Estudiantes y Corporativos?",
+        "relacionada_con": "IF-04"
+      },
+      {
+        "id": "PR-05",
+        "pregunta": "El link a un plan con descuento tiene fecha de vencimiento y uso unico, y esta atado al correo del destinatario? Que debe pasar si lo abre otra persona?",
+        "relacionada_con": "IF-05"
+      },
+      {
+        "id": "PR-06",
+        "pregunta": "Cuantos minutos u horas dura el codigo de confirmacion de mail, se puede reenviar, y que debe mostrar el sistema ante un codigo incorrecto o vencido?",
+        "relacionada_con": "IF-06"
+      },
+      {
+        "id": "PR-07",
+        "pregunta": "Si alguien entra con Google o Facebook usando un correo que ya tiene cuenta nativa, el sistema vincula las cuentas, la rechaza o crea una nueva?",
+        "relacionada_con": "IF-07"
+      },
+      {
+        "id": "PR-08",
+        "pregunta": "A que url debe llevar el boton 'Volver al sitio' cuando la persona ingreso desde un link de email marketing o desde la url directa de un plan con descuento?",
+        "relacionada_con": "IF-08"
+      },
+      {
+        "id": "PR-09",
+        "pregunta": "Si la persona abandona el circuito entre el paso 2 y el paso 3 y vuelve mas tarde, se conservan los datos cargados y por cuanto tiempo dura la sesion del circuito?",
+        "relacionada_con": "IF-09"
+      },
+      {
+        "id": "PR-10",
+        "pregunta": "En que momento exacto se habilitan el acceso a notas cerradas, el alta al foro y el envio de newsletters, y como se verifica cada uno en un ambiente de prueba?",
+        "relacionada_con": "IF-10"
+      },
+      {
+        "id": "PR-11",
+        "pregunta": "Que debe mostrar el sistema y en que estado queda la suscripcion si Mercado Pago devuelve el pago como pendiente o en revision en lugar de aprobado o rechazado?",
+        "relacionada_con": "IF-11"
+      },
+      {
+        "id": "PR-12",
+        "pregunta": "Existe un circuito de baja de suscripcion? Si existe, en que documento esta definido y que pasa con el acceso y la renovacion despues de la baja?",
+        "relacionada_con": "IF-12"
+      }
+    ]
+  },
+  "traza": [
+    {
+      "vuelta": 1,
+      "herramienta": "listar_documentos",
+      "entrada": {},
+      "es_error": false,
+      "caracteres_devueltos": 251
+    },
+    {
+      "vuelta": 2,
+      "herramienta": "leer_documento",
+      "entrada": {
+        "nombre": "01-circuito-alta.md"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 3660
+    },
+    {
+      "vuelta": 2,
+      "herramienta": "leer_documento",
+      "entrada": {
+        "nombre": "02-datos-y-validaciones.md"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 1063
+    },
+    {
+      "vuelta": 2,
+      "herramienta": "leer_documento",
+      "entrada": {
+        "nombre": "03-planes-y-cobro.md"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 1565
+    },
+    {
+      "vuelta": 3,
+      "herramienta": "buscar_en_documentos",
+      "entrada": {
+        "texto": "reintent"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 89
+    },
+    {
+      "vuelta": 3,
+      "herramienta": "buscar_en_documentos",
+      "entrada": {
+        "texto": "cancel"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 87
+    },
+    {
+      "vuelta": 3,
+      "herramienta": "buscar_en_documentos",
+      "entrada": {
+        "texto": "expira"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 87
+    },
+    {
+      "vuelta": 3,
+      "herramienta": "buscar_en_documentos",
+      "entrada": {
+        "texto": "código"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 334
+    },
+    {
+      "vuelta": 4,
+      "herramienta": "buscar_en_documentos",
+      "entrada": {
+        "texto": "descuento"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 229
+    },
+    {
+      "vuelta": 4,
+      "herramienta": "buscar_en_documentos",
+      "entrada": {
+        "texto": "obligatorio"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 83
+    },
+    {
+      "vuelta": 4,
+      "herramienta": "buscar_en_documentos",
+      "entrada": {
+        "texto": "error"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 255
+    },
+    {
+      "vuelta": 4,
+      "herramienta": "buscar_en_documentos",
+      "entrada": {
+        "texto": "bienvenida"
+      },
+      "es_error": false,
+      "caracteres_devueltos": 102
+    }
+  ]
+}
