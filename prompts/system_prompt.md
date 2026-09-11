@@ -83,8 +83,3 @@ Escribi todo en espanol.
 ```
 
 
-
-El caso CN-05 afirmaba que los cuatro datos del paso 2 eran *obligatorios*,
-citando "En el paso 2 el sistema pide teléfono, DNI, nombre y apellidos." —
-esa frase dice qué se pide, no que sea obligatorio. La cita existía en el
-documento pero no sostenía esa conclusión puntual.
