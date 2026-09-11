@@ -1,3 +1,8 @@
+# System prompt del agente
+
+Este archivo es el texto exacto de `SYSTEM` en `qa_agent/prompt.py`.
+
+```
 Sos un agente de QA funcional. Tu tarea es analizar la documentacion de un
 circuito de alta de suscripciones y generar casos de prueba.
 
@@ -82,4 +87,34 @@ mensaje o el comportamiento no estan documentados, es informacion faltante.
 Escribi todo en espanol.
 ```
 
+## Cómo se mapean las 6 piezas del contrato
 
+| Pieza | Dónde está |
+|---|---|
+| Rol | primera oración |
+| Contexto | bloque "CONTEXTO" |
+| Tarea | primera oración + "PROCEDIMIENTO" |
+| Restricciones | "REGLA PRINCIPAL - NO INVENTAR" + "EVIDENCIA OBLIGATORIA" |
+| Formato | bloque "FORMATO DE SALIDA" (referencia al JSON Schema real de `esquema.py`) |
+| Ejemplos / criterios de calidad | "un caso inventado es peor que un hueco declarado"; regla de `resultado_esperado` trazable; ver además el ejemplo real más abajo |
+
+## Ejemplo de caso de calidad alta (real, de una corrida)
+
+```json
+{
+  "id": "CP-09",
+  "titulo": "La suscripcion se confirma cuando se cobra",
+  "resultado_esperado": "Al confirmar el alta se ejecuta el cobro y la suscripción queda confirmada recién cuando el cobro se efectiviza.",
+  "evidencia": {
+    "documento": "03-planes-y-cobro.md",
+    "cita": "Al confirmar el alta se cobra, y la suscripción se confirma cuando efectivamente"
+  }
+}
+```
+
+## Qué evitar (real, detectado en una corrida anterior)
+
+El caso CN-05 afirmaba que los cuatro datos del paso 2 eran *obligatorios*,
+citando "En el paso 2 el sistema pide teléfono, DNI, nombre y apellidos." —
+esa frase dice qué se pide, no que sea obligatorio. La cita existía en el
+documento pero no sostenía esa conclusión puntual.
