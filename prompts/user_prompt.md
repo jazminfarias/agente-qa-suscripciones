@@ -1,9 +1,6 @@
 # User prompt del agente
 
-> Igual que `system_prompt.md`, este archivo tiene que reflejar lo que el
-> código realmente envía como primer mensaje del usuario. La fuente de
-> verdad es `PEDIDO_POR_DEFECTO` en `qa_agent/agente.py` y el argumento
-> `pedido` de `main.py`.
+Este archivo refleja el primer mensaje que el código envía como usuario, definido en PEDIDO_POR_DEFECTO (qa_agent/agente.py) y parametrizable con el argumento pedido de main.py.
 
 ## Pedido por defecto
 
@@ -33,7 +30,4 @@ sección puntual después de agregar documentación nueva.
 
 El `system_prompt.md` define *cómo* tiene que comportarse el agente siempre
 (no inventar, citar evidencia, formato JSON). El `user_prompt.md` define
-*qué* se le pide analizar en una corrida en particular. Mantenerlos
-separados es lo que te permite, en `corridas/`, documentar el mismo
-contrato corriendo sobre pedidos distintos sin reescribir el system prompt
-cada vez.
+*qué* se le pide analizar en una corrida en particular. Mantenerlos separados es lo que permite, en corridas/, comparar el mismo pedido corriendo sobre distintos motores sin tocar el system prompt entre una corrida y otra.
